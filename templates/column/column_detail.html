@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>{{ column.board.title }}</h1>
+<div class="row">
+    <div class="col-md-8">
+        <img src="{{ column.board.background.url }}" alt="" width="100%">
+    </div>
+    <div class="col-md-4">
+        <h5>Columns</h5>
+        <p>{{ column.name }}</p>
+        <br>
+        <h5>Attached to Board:</h5>
+        <p>{{ column.board.title }}</p>
+    </div>
+</div>
+{% endblock %}

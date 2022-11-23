@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+{% block page_content %}
+<h1>Marks</h1>
+<a href="{% url 'mark_create' %}" role="button">
+    <h5>✨ Create New Mark</h5>
+    </a>
+<a href="{% url 'mark_update' mark.id %}">
+    <h5>✨ Update This Mark</h5>
+    </a>
+<a href="{% url 'mark_delete' mark.id %}">
+    <h5>✨ Delete This Mark</h5>
+    </a>
+
+<div class="row">
+{% for mark in marks %}
+    <div class="col-md-4">
+        <div class="card mb-2">
+            <div class="card-body">
+                <h5 class="card-title">{{ mark.name }}</h5>
+                <p class="card-text">{{ mark.card_mark.name }}</p>
+                <a href="{% url 'mark_detail' mark.pk %}"
+                   class="btn btn-primary">
+                    Read More
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

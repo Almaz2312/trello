@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<h1>Archive Boards</h1>
+<a href="{% url 'archive_create' %}" role="button">
+    <h5>✨ Add New Archives</h5>
+    </a>
+
+<div class="row">
+{% for archive in archives %}
+    {% if user == archive.author %}
+    <div class="col-md-4" style="">
+        <div class="card mb-2">
+            <img class="card-img-top" src="{{archive.board.background.url}}">
+            <div class="card-body">
+                <h5 class="card-title">{{ archive.board.title }}</h5>
+                <p class="card-text">{{ archive.board.owner }}</p>
+                <a href="{% url 'board_detail' archive.board.pk %}"
+                   class="btn btn-primary">
+                    Read More In Original Board
+                </a>
+            </div>
+        </div>
+    </div>
+    <a href="{% url 'archive_delete' archive.board.id %}">
+    <h5>✨ Delete This Board From Archive</h5>
+    </a>
+    {% endif %}
+    {% endfor %}
+
+    <h5
+
+</div>
+
+{% endblock %}

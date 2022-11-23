@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<h1>{{ board.title }}</h1>
+<form action="/boards/{{board.pk}}/" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        {{ form.name }}
+    </div>
+    <button type="submit" class="btn btn-primary">✨ Create New Column</button>
+</form>
+
+
+<div class="column" style="background: url('{{ board.background.url }}');">
+    {% for column in columns %}
+    <h1>{{column.name}}</h1>
+        {% for card in column.card_column.all %}
+        <div class="col-md-8">
+            <h5 class="card-title"><a href="{% url 'card_detail' card.id %}" class="card-title">{{ card.name }}></a></h5>
+            <div class="card mb-4">
+                <div class="card-body">
+                    {% for member in board.members.all %}
+                    <h5 class="card-title">{{ member }}</h5>
+                    {% endfor %}
+                    <h5 class="card-title">{{ card.due_date }}</h5>
+                    <p class="card-text">{{ card.description }}</p>
+                    <h5 class="card-title">Checklists</h5>
+                    {% for checklist in card.checklist.all %}
+                    <h6 class="card-title">checklist.name</h6>
+                    <h6 class="card-title">checklist.done</h6>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+    {% endfor %}
+    <a href="{% url 'column_update' column.id %}">
+    <h5>✨ Update This Column</h5>
+    </a>
+<a href="{% url 'column_delete' column.id %}">
+    <h5>✨ Delete This Column</h5>
+    </a>
+    {% endfor %}
+
+</div>
+
+
+
+
+
+{% endblock %}

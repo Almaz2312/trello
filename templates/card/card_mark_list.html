@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<h1>{{ mark | title }}</h1>
+<a href="{% url 'card_create' %}" role="button">
+    <h5>✨ Create New Card</h5>
+    </a>
+
+<div class="column">
+    {% for card in cards %}
+    {% ifchanged %}
+            <h1>{{card.column.name}}</h1>
+            {% endifchanged %}
+    {% if user in card.column.board.members or card.column.board.owner == user %}
+    <div class="col-md-8">
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <a href="{% url 'card_detail' card.id %}" class="card-title">{{ card.name }}></a>
+                <h5 class="card-title">{{ card.column.board.owner.email }}</h5>
+                <h5 class="card-title">{{ mark }}</h5>
+                <h5 class="card-title">{{ card.due_date }}</h5>
+                <p class="card-text">{{ card.description }}</p>
+            </div>
+        </div>
+
+    </div>
+    {% endif %}
+  {% endfor %}
+</div>
+
+{% endblock %}

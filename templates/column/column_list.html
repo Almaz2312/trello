@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<h1>Columns</h1>
+<a href="{% url 'column_create' %}" role="button">
+    <h5>✨ Create New Column</h5>
+    </a>
+<a href="{% url 'column_update' column.id %}">
+    <h5>✨ Update This Column</h5>
+    </a>
+<a href="{% url 'column_delete' column.id %}">
+    <h5>✨ Delete This Column</h5>
+    </a>
+
+<div class="row">
+{% for column in columns %}
+    <div class="col-md-4">
+        <div class="card mb-2">
+            <div class="card-body">
+                <h5 class="card-title">{{ column.name }}</h5>
+                <p class="card-text">{{ column.board.title }}</p>
+                <a href="{% url 'column_detail' column.pk %}"
+                   class="btn btn-primary">
+                    Read More
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

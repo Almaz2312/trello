@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>{{ favourite.board.title }}</h1>
+<div class="row">
+    <div class="col-md-8">
+        <img src="{{ favourite.board.background.url }}" alt="" width="100%">
+    </div>
+    <div class="col-md-4">
+        <h5>Board</h5>
+        <p>{{ favourite.board.title }}</p>
+        <br>
+        <a href="{% url 'board_detail' favourite.board.pk %}"
+                   class="btn btn-primary">
+                    Read More
+                </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<h1>Favourite Boards</h1>
+<a href="{% url 'favourite_create' %}" role="button">
+    <h5>✨ Add New favourite</h5>
+    </a>
+
+<div class="row">
+{% for favourite in favourites %}
+    <div class="col-md-4" style="">
+        <div class="card mb-2">
+            <img class="card-img-top" src="{{favourite.board.background.url}}">
+            <div class="card-body">
+                <h5 class="card-title">{{ favourite.board.title }}</h5>
+                <p class="card-text">{{ favourite.board.owner }}</p>
+                <a href="{% url 'board_detail' favourite.board.pk %}"
+                   class="btn btn-primary">
+                    Read More In Original Board
+                </a>
+            </div>
+        </div>
+    </div>
+    <a href="{% url 'favourite_delete' favourite.id %}">
+    <h5>✨ Delete This Board From Favourites</h5>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

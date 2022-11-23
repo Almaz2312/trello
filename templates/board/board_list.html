@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<h1>Boards</h1>
+<a href="{% url 'create_board' %}" role="button">
+    <h5>✨ Create New Board</h5>
+    </a>
+
+<div class="row">
+{% for board in boards %}
+    <div class="col-md-4" style="">
+        <div class="card mb-2">
+            <img class="card-img-top" src="{{board.background.url}}">
+            <div class="card-body">
+                <h5 class="card-title">{{ board.title }}</h5>
+                <p class="card-text">{{ board.owner }}</p>
+                <a href="{% url 'board_detail' board.pk %}"
+                   class="btn btn-primary">
+                    Read More
+                </a>
+            </div>
+        </div>
+    </div>
+    <a href="{% url 'board_update' board.id %}">
+    <h5>✨ Update This Board</h5>
+    </a>
+    <a href="{% url 'board_delete' board.id %}">
+    <h5>✨ Delete This Board</h5>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

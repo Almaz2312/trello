@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<h1>{{ board.title }}</h1>
+
+<div class="row" style="background-image: url('{{ board.background.url }}');">
+    <div class="col-md-8">
+    </div>
+    <div class="col-md-4">
+
+        <h5>Card:</h5>
+        <p>{{ card.description }}</p>
+        <br>
+        <h5>Checklist:</h5>
+        {% for list in card.check_list.all %}
+        <p>Name: {{list.name}}</p>
+        {% endfor %}
+        <h5>Members:</h5>
+        {% for member in card.column.board.members.all %}
+        <p>{{ member }}</p
+        {% endfor %}>
+        {% if card.mark%}
+        <a href="{% url 'card_mark' card.mark.name %}">
+        <h5 style="color:{{card.mark.color}}">Mark:</h5>
+        </a>
+        <p style="color: {{card.mark.color}}">{{ card.mark }}</p>
+        {%else%}
+        <h5 style="color:{{card.mark.color}}">Mark:</h5>
+        <p style="color: {{card.mark.color}}">{{ card.mark }}</p>
+        {% endif %}
+        <h5>Due date:</h5>
+        <p>{{ card.due_date }}</p>
+    </div>
+    <form action="/boards/card/{{ card.pk }}/" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.text }}
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <div class="col-md-4">
+    <h4>Comments:</h4>
+    {% for comment in comments %}
+    <p>
+        On {{comment.created_on }}&nbsp;
+        <b>{{ comment.author }}</b> wrote:
+    </p>
+    <p>{{ comment.text }}</p>
+    <hr>
+    </div>
+    {% endfor %}
+</div>
+
+<a href="{% url 'card_create' %}">Create Card</a>
+<a href="{% url 'card_update' card.id %}">Update Card</a>
+<a href="{% url 'card_delete' card.id %}">Delete Card</a>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<h1>Search results:</h1>
+<div class="row">
+{% for board in users.card_members.all %}
+
+    <div class="col-md-4" style="">
+        <div class="card mb-2">
+            <img class="card-img-top" src="{{board.background.url}}">
+            <div class="card-body">
+                <h5 class="card-title">{{ board.title }}</h5>
+                <p class="card-text">{{ board.owner }}</p>
+                    {% for member in board.members.all %}
+                <h5 class="card-title">{{ member }}</h5>
+                {% endfor %}
+                <a href="{% url 'board_detail' board.pk %}"
+                   class="btn btn-primary">
+                    Read More
+                </a>
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+
+</div>
+<a href="{% url 'board_list' %}" class="button">Boards</a>
+{% endblock %}

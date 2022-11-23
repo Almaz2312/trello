@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>{{ checklist.card.column.board.title }}</h1>
+<div class="row">
+    <div class="col-md-8">
+        <img src="{{ board.background.url }}" alt="" width="100%">
+    </div>
+    <div class="col-md-4">
+        <h5>Checklist</h5>
+        <p>{{ checklist.name }}</p>
+        <br>
+        <h5>Attached to Card:</h5>
+        <p>{{ checklist.card.name }}</p>
+    </div>
+</div>
+{% endblock %}

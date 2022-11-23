@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>{{ mark.mark_card.column.board.title}}</h1>
+<div class="row">
+    <div class="col-md-8">
+        <img src="{{ mark.mark_card.column.board.background.url }}" alt="" width="100%">
+    </div>
+    <div class="col-md-4">
+        <h5>Mark</h5>
+        <p>{{ mark.name }}</p>
+        <br>
+        <h5>Attached to Card:</h5>
+        <p>{{ mark.card_mark.name }}</p>
+    </div>
+</div>
+{% endblock %}

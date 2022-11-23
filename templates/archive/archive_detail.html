@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>{{ archive.board.title }}</h1>
+<div class="row">
+    <div class="col-md-8">
+        <img src="{{ archive.board.background.url }}" alt="" width="100%">
+    </div>
+    <div class="col-md-4">
+        <h5>Board</h5>
+        <p>{{ archive.board.title }}</p>
+        <br>
+        <a href="{% url 'board_detail' archive.board.pk %}"
+                   class="btn btn-primary">
+                    Read More
+                </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h1>Deleting {{favourite.board.title}} Favourite Board, Are You Sure?</h1>
+        <div class="media-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <fieldset class="form-group">
+
+                </fieldset>
+                <div>
+                    <button type="submit">Yes Delete</button>
+                </div>
+            </form>
+        </div>
+
+{% endblock%}
