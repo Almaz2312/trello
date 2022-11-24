@@ -99,7 +99,6 @@ LOGOUT_REDIRECT_URL = "dashboard"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {"default": os.environ.get("DATABASE_URL")}
-DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
 
 # Password validation
