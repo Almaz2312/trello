@@ -1,12 +1,14 @@
 import django.contrib.auth.backends
 from django.shortcuts import render, redirect
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model
+from django.contrib.auth.views import PasswordResetConfirmView
 from django.urls import reverse
 from django.views import View
 from django.views import generic
 
-from accounts.forms import CustomUserCreationForm
+from accounts.forms import CustomUserCreationForm, CustomPasswordResetForm
 from accounts.services import send_message
+
 
 User = get_user_model()
 
@@ -39,3 +41,7 @@ class ActivateAccount(View):
         user.activation_code = ''
         user.save()
         return redirect(reverse('login'))
+
+
+class CustomSetPasswordView(PasswordResetConfirmView):
+    form_class = CustomPasswordResetForm

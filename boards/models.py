@@ -9,20 +9,19 @@ class Board(models.Model):
     file_extension_validator = FileExtensionValidator(allowed_extensions=['png', 'jpeg', 'jpg'],
                                                       message='File extension not allowed')
     title = models.CharField(max_length=36)
-    background = models.ImageField(upload_to='board_background')
+    background = models.ImageField(upload_to='board_background', null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner', null=True, blank=True)
-    members = models.ManyToManyField(User, related_name='card_members')
 
     def __str__(self):
         return f'{self.title}, {self.pk}'
 
 
-# class Members(models.Model):
-#     member = models.ForeignKey(User, on_delete=models.CASCADE)
-#     board = models.ForeignKey(Board, on_delete=models.CASCADE)
-#
-#     def __str__(self):
-#         return f'{self.member} - {self.board}'
+class Members(models.Model):
+    member = models.ForeignKey(User, on_delete=models.CASCADE)
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='members')
+
+    def __str__(self):
+        return f'{self.member} - {self.board}'
 
 
 class LastSeen(models.Model):

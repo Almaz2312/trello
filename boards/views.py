@@ -6,9 +6,9 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
-from boards.models import Card, Comment, Board, Column, CheckList, Mark, Favourite, Archive, LastSeen
+from boards.models import Card, Comment, Board, Column, CheckList, Mark, Favourite, Archive, LastSeen, Members
 from boards.forms import CommentForm, CardForm, ColumnForm, SearchUserForm, SearchMarkForm
-
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -17,9 +17,7 @@ class LockedView(LoginRequiredMixin):
     login_url = "login"
 
 
-"""             BOARD VIEWS         """
-
-
+# Board Views
 class BoardView(LockedView, generic.ListView):
     model = Board
     context_object_name = 'boards'
@@ -27,14 +25,16 @@ class BoardView(LockedView, generic.ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(members=self.request.user)
+        user = self.request.user
+        queryset = queryset.filter(Q(owner=user) | Q(members__member=user))
         return queryset
 
 
+# select * from boards left join members on members.board = boards.id where board.owner = user_id or member.user = user_id
 class CreateBoardView(LockedView, generic.CreateView):
     model = Board
     template_name = 'board/create_board.html'
-    fields = ['title', 'background', 'members']
+    fields = ['title', 'background']
     success_url = reverse_lazy('board_list')
 
     def form_valid(self, form):
@@ -49,22 +49,17 @@ class BoardDetailView(LockedView, generic.FormView, generic.DetailView):
     form_class = ColumnForm
     success_url = '#'
 
+    def get(self, request, *args, **kwargs):
+        saw, created = LastSeen.objects.get_or_create(user=self.request.user, board=self.get_object())
+        if not created:
+            saw.seen = datetime.datetime.now()
+            saw.save()
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['columns'] = Column.objects.filter(board=self.get_object())
         context['form'] = ColumnForm()
-        saw = LastSeen.objects.filter(user=self.request.user, board=self.get_object())
-        if saw:
-            saw.update(seen=datetime.datetime.now())
-        else:
-            last_seen = LastSeen(
-                user=self.request.user,
-                board=self.get_object(),
-                seen=datetime.datetime.now()
-            )
-            last_seen.save()
-        print(saw)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -440,5 +435,5 @@ class LastSeenView(LockedView, generic.ListView):
     context_object_name = 'boards'
 
     def get_queryset(self):
-        queryset = LastSeen.objects.filter(user=self.request.user,).order_by('-seen')
+        queryset = LastSeen.objects.filter(user=self.request.user,).order_by('-seen')[:6]
         return queryset
