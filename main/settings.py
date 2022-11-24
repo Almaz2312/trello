@@ -98,16 +98,8 @@ LOGOUT_REDIRECT_URL = "dashboard"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'POSTGRES_DB': config('POSTGRES_DB'),
-        'POSTGRES_USER': config('POSTGRES_USER'),
-        'POSTGRES_PASSWORD': config('POSTGRES_PASSWORD'),
-        'POSTGRES_HOST': config('POSTGRES_HOST'),
-        'POSTGRES_PORT': config('POSTGRES_PORT'),
-    }
-}
+DATABASES = {"default": os.environ.get("DATABASE_URL")}
+DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
 
 # Password validation
@@ -169,3 +161,6 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "1017844824646-3q5uaop81j12b9ojq6lgr86dh0n25dt0.
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
 # SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/social/complete/google-oauth2/'
 # SOCIAL_AUTH_LOGIN_URL = 'social/complete/google-oauth2/'
+
+import django_heroku
+django_heroku.settings(locals())
