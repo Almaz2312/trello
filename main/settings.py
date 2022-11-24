@@ -100,8 +100,12 @@ LOGOUT_REDIRECT_URL = "dashboard"
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'POSTGRES_DB': config('POSTGRES_DB'),
+        'POSTGRES_USER': config('POSTGRES_USER'),
+        'POSTGRES_PASSWORD': config('POSTGRES_PASSWORD'),
+        'POSTGRES_HOST': config('POSTGRES_HOST'),
+        'POSTGRES_PORT': config('POSTGRES_PORT'),
     }
 }
 
