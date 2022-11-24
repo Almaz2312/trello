@@ -7,7 +7,7 @@ def send_message(user):
     context = {
         'text_detail': 'Спасибо за вашу регистрацию',
         'email': user.email,
-        'domain': 'http://127.0.0.1:8000/',
+        'domain': 'https://powerful-island-44462.herokuapp.com//',
         'activation_code': user.activation_code,
     }
 
