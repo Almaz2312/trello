@@ -1,4 +1,4 @@
-from functools import reduce
+import datetime
 
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
@@ -6,10 +6,8 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
-from boards.models import Card, Comment, Board, Column, CheckList, Mark, Favourite, Archive
+from boards.models import Card, Comment, Board, Column, CheckList, Mark, Favourite, Archive, LastSeen
 from boards.forms import CommentForm, CardForm, ColumnForm, SearchUserForm, SearchMarkForm
-from django.db.models import Q
-import operator
 
 
 User = get_user_model()
@@ -51,10 +49,22 @@ class BoardDetailView(LockedView, generic.FormView, generic.DetailView):
     form_class = ColumnForm
     success_url = '#'
 
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['columns'] = Column.objects.filter(board=self.get_object())
         context['form'] = ColumnForm()
+        saw = LastSeen.objects.filter(user=self.request.user, board=self.get_object())
+        if saw:
+            saw.update(seen=datetime.datetime.now())
+        else:
+            last_seen = LastSeen(
+                user=self.request.user,
+                board=self.get_object(),
+                seen=datetime.datetime.now()
+            )
+            last_seen.save()
+        print(saw)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -92,8 +102,7 @@ class CardMarkListView(LockedView, generic.ListView):
     context_object_name = 'cards'
 
     def get_queryset(self):
-        self.mark = get_object_or_404(Mark, name=self.kwargs['mark'])
-        return Card.objects.filter(mark=self.mark)
+        return Card.objects.filter(mark=self.kwargs['mark'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -109,7 +118,7 @@ class CardListView(LockedView, generic.ListView):
     def get_queryset(self):
         return Card.objects.all().order_by('column')
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
 
@@ -355,9 +364,8 @@ class FavouriteCreateView(LockedView, generic.CreateView):
     def post(self, request, *args, **kwargs):
         product = self.get_form_kwargs()
         data = product.get('data')['board']
-        products = Favourite.objects.filter(board=data, author=self.request.user)
 
-        if products:
+        if Favourite.objects.filter(board=data, author=self.request.user):
             return HttpResponse('You already have it in Favourites', content_type='text/plain')
         else:
             form = self.get_form()
@@ -424,3 +432,13 @@ class ArchiveDeleteView(LockedView, generic.DeleteView):
     model = Archive
     success_url = reverse_lazy('archive_list')
     template_name = 'archive/archive_delete.html'
+
+
+class LastSeenView(LockedView, generic.ListView):
+    model = LastSeen
+    template_name = 'board/last_seen_list.html'
+    context_object_name = 'boards'
+
+    def get_queryset(self):
+        queryset = LastSeen.objects.filter(user=self.request.user,).order_by('-seen')
+        return queryset

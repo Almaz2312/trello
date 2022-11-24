@@ -6,6 +6,7 @@ urlpatterns = [
 
     # Boards urls
     path('', views.BoardView.as_view(), name='board_list'),
+    path('last_seen/', views.LastSeenView.as_view(), name='last_seen_list'),
     path('<int:pk>/', views.BoardDetailView.as_view(), name='board_detail'),
     path('delete:<int:pk>/', views.BoardDeleteView.as_view(), name='board_delete'),
     path('update:<int:pk>/', views.UpdateBoardView.as_view(), name='board_update'),

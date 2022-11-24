@@ -45,11 +45,11 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
-
-CSRF_COOKIE_DOMAIN = config('CSRF_COOKIE_DOMAIN')
-CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS')]
-SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS')
-SECURE_CONTENT_TYPE_NOSNIFF = config('SECURE_CONTENT_TYPE_NOSNIFF')
+#
+# CSRF_COOKIE_DOMAIN = config('CSRF_COOKIE_DOMAIN')
+# CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS')]
+# SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS')
+# SECURE_CONTENT_TYPE_NOSNIFF = config('SECURE_CONTENT_TYPE_NOSNIFF')
 
 
 MIDDLEWARE = [
@@ -99,7 +99,12 @@ LOGOUT_REDIRECT_URL = "dashboard"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {"default": os.environ.get("DATABASE_URL")}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 # Password validation

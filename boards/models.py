@@ -17,6 +17,26 @@ class Board(models.Model):
         return f'{self.title}, {self.pk}'
 
 
+# class Members(models.Model):
+#     member = models.ForeignKey(User, on_delete=models.CASCADE)
+#     board = models.ForeignKey(Board, on_delete=models.CASCADE)
+#
+#     def __str__(self):
+#         return f'{self.member} - {self.board}'
+
+
+class LastSeen(models.Model):
+    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    seen = models.DateTimeField(auto_now=True)
+
+    def create(self):
+        self.board = self.user
+
+    def __str__(self):
+        return f'{self.user} - {self.board} - {self.seen}'
+
+
 class Column(models.Model):
     name = models.CharField(max_length=30)
     board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='column')
