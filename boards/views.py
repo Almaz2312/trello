@@ -2,11 +2,11 @@ import datetime
 
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
-from boards.models import Card, Comment, Board, Column, CheckList, Mark, Favourite, Archive, LastSeen, Members
+from boards.models import Card, Comment, Board, Column, CheckList, Mark, Favourite, Archive, LastSeen
 from boards.forms import CommentForm, CardForm, ColumnForm, SearchUserForm, SearchMarkForm
 from django.db.models import Q
 

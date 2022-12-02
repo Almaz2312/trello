@@ -268,7 +268,6 @@ class FileDetailDeleteAPIView(APIView):
 # Fix Here
 class CheckListCreateAPIView(APIView):
     def get(self, request):
-        """ Should I do assign card id automatically or not!!!! """
         checklist = CheckList.objects.filter(Q(card__column__board__owner=request.user) |
                                              Q(card__column__board__members__member=request.user))
         serializer = ChecklistSerializer(checklist, many=True)

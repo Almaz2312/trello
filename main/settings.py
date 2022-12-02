@@ -27,7 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG')
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=lambda v: [s.strip() for s in v.split(',')])
+ALLOWED_HOSTS = config('ALLOWED_HOSTS')
 
 
 GOOGLE_HOST = config('GOOGLE_HOST')
@@ -51,10 +51,12 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'accounts.User'
 #
-CSRF_COOKIE_DOMAIN = config('CSRF_COOKIE_DOMAIN')
-CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS')]
-SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS')
-SECURE_CONTENT_TYPE_NOSNIFF = config('SECURE_CONTENT_TYPE_NOSNIFF')
+# CSRF_COOKIE_DOMAIN = config('CSRF_COOKIE_DOMAIN')
+# CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS')]
+# SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS')
+# SECURE_CONTENT_TYPE_NOSNIFF = config('SECURE_CONTENT_TYPE_NOSNIFF')
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_HTTPONLY = True
 
 
 MIDDLEWARE = [
@@ -97,9 +99,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 1,
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
