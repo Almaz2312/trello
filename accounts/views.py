@@ -30,7 +30,6 @@ class Register(View):
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             user.save()
             send_message(user)
-            print(user.activation_code)
             return redirect('dashboard')
 
 

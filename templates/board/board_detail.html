@@ -12,7 +12,7 @@
 </form>
 
 
-<div class="column" style="background: url('{{ board.background.url }}');">
+<div class="column" style="background: url('{{ board.background.url}');">
     {% for column in columns %}
     <h1>{{column.name}}</h1>
         {% for card in column.card_column.all %}

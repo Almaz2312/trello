@@ -22,17 +22,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', cast=lambda v: [s.strip() for s in v.split(',')])
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG')
 
-ALLOWED_HOSTS = [config('ALLOWED_HOSTS')]
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=lambda v: [s.strip() for s in v.split(',')])
 
+
+GOOGLE_HOST = config('GOOGLE_HOST')
 
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
+    'rest_framework.authtoken',
+    'drf_yasg',
     'accounts',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -46,10 +51,10 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'accounts.User'
 #
-# CSRF_COOKIE_DOMAIN = config('CSRF_COOKIE_DOMAIN')
-# CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS')]
-# SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS')
-# SECURE_CONTENT_TYPE_NOSNIFF = config('SECURE_CONTENT_TYPE_NOSNIFF')
+CSRF_COOKIE_DOMAIN = config('CSRF_COOKIE_DOMAIN')
+CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS')]
+SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS')
+SECURE_CONTENT_TYPE_NOSNIFF = config('SECURE_CONTENT_TYPE_NOSNIFF')
 
 
 MIDDLEWARE = [
@@ -85,10 +90,21 @@ TEMPLATES = [
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    'social_core.backends.open_id.OpenIdAuth',
     'social_core.backends.google.GoogleOAuth2',
-    # 'social_core.backends.google.GoogleOAuth',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 1,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
 
 WSGI_APPLICATION = 'main.wsgi.application'
 
@@ -106,6 +122,17 @@ DATABASES = {
     }
 }
 
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': config('NAME'),
+#         'USER': config('USER_NAME'),
+#         'PASSWORD': config('PASSWORD'),
+#         'HOST': config('HOST'),
+#         'PORT': config('PORT'),
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -162,10 +189,10 @@ EMAIL_PORT = config('EMAIL_PORT')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "1017844824646-3q5uaop81j12b9ojq6lgr86dh0n25dt0.apps.googleusercontent.com"
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
 # SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/social/complete/google-oauth2/'
-# SOCIAL_AUTH_LOGIN_URL = 'social/complete/google-oauth2/'
+SOCIAL_AUTH_LOGIN_URL = os.path.join(GOOGLE_HOST, 'oauth/login/google-oauth2/')
 
 import django_heroku
 django_heroku.settings(locals())

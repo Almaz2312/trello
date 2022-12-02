@@ -45,6 +45,7 @@ class Column(models.Model):
 
 
 class Mark(models.Model):
+    board = models.ForeignKey(Board, on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
     color = models.CharField(max_length=30)
 
@@ -56,11 +57,23 @@ class Card(models.Model):
     name = models.CharField(max_length=30)
     description = models.TextField(max_length=500)
     due_date = models.DateField(blank=True, null=True)
-    mark = models.ForeignKey(Mark, related_name='card_mark', null=True, blank=True, on_delete=models.SET_NULL)
     column = models.ForeignKey(Column, on_delete=models.SET_NULL, null=True, blank=True, related_name='card_column')
 
     def __str__(self):
         return f'{self.name}'
+
+
+class MarkCard(models.Model):
+    mark = models.ForeignKey(Mark, related_name='attached_mark', on_delete=models.CASCADE)
+    card = models.ForeignKey(Card, related_name='attached_to_card', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.mark} - {self.card}'
+
+
+class File(models.Model):
+    name = models.FileField(upload_to='board_files')
+    card = models.ForeignKey(Card, related_name='file', on_delete=models.CASCADE)
 
 
 class CheckList(models.Model):
@@ -74,7 +87,7 @@ class CheckList(models.Model):
 
 class Comment(models.Model):
     text = models.TextField(max_length=300)
-    card = models.ForeignKey(Card, on_delete=models.CASCADE)
+    card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='comment')
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created_on = models.DateTimeField(auto_now_add=True)
 

@@ -1,0 +1,28 @@
+volumes:
+  trello: {}
+  trello_data_backups: {}
+
+services:
+    trello:
+        build:
+            context: .
+    ports:
+        - "8000:8000"
+    volumes:
+        - .trello:.
+    command: >
+        sh -c "python3 manage.py runserver 0.0.0.0:8000"
+    depends_on:
+        -postgres
+
+
+  postgres:
+    build:
+      context: .
+    image: trello_postgres
+    container_name: trello_postgres
+    volumes:
+      - trello_postgres_data:/var/lib/postgresql/data:Z
+      - trello_postgres_data_backups:/backups:z
+    env_file:
+      - .env

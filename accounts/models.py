@@ -71,10 +71,12 @@ class User(AbstractEmailUser):
         return self.full_name
 
     def str(self):
-        return '{name} < {email}'.format(
+        return '{id}{name} < {email}'.format(
             name=self.full_name,
-            email=self.email
+            email=self.email,
+            id=self.pk
         )
 
     def create_activation_code(self):
         self.activation_code = str(uuid.uuid4())
+        return self.activation_code

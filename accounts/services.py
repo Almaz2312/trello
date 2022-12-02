@@ -7,11 +7,11 @@ def send_message(user):
     context = {
         'text_detail': 'Спасибо за вашу регистрацию',
         'email': user.email,
-        'domain': 'https://powerful-island-44462.herokuapp.com//',
+        'domain': 'http://127.0.0.1:8000/',
         'activation_code': user.activation_code,
     }
 
-    msg_html = render_to_string('user/email.html', context)
+    msg_html = render_to_string('email.html', context)
     plain_message = strip_tags(msg_html)
     subject = 'Активация аккаунта'
     to_email = user.email

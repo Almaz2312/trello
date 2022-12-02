@@ -26,11 +26,11 @@ class BoardView(LockedView, generic.ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         user = self.request.user
-        queryset = queryset.filter(Q(owner=user) | Q(members__member=user))
-        return queryset
+        boards = queryset.filter(Q(owner=user) | Q(members__member=user))
+
+        return boards
 
 
-# select * from boards left join members on members.board = boards.id where board.owner = user_id or member.user = user_id
 class CreateBoardView(LockedView, generic.CreateView):
     model = Board
     template_name = 'board/create_board.html'
@@ -76,7 +76,7 @@ class BoardDetailView(LockedView, generic.FormView, generic.DetailView):
 class UpdateBoardView(LockedView, generic.UpdateView):
     model = Board
     template_name = 'board/update_board.html'
-    fields = ['title', 'background', 'members']
+    fields = ['title', 'background']
 
     def get_success_url(self):
         return reverse('board_detail', kwargs={'pk': self.get_object().id})

@@ -1,10 +1,16 @@
 from django import forms
-from boards.models import Card, Column
+from boards.models import Card, Column, Members
 
 
 class BoardForm(forms.Form):
     title = forms.CharField(max_length=36)
     background = forms.ImageField()
+
+
+class MembersForm(forms.ModelForm):
+    class Meta:
+        model = Members
+        fields = '__all__'
 
 
 class CommentForm(forms.Form):

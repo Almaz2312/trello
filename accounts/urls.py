@@ -2,6 +2,7 @@ from django.urls import path, include
 
 from accounts.views import ActivateAccount, Dashboard, Register, CustomSetPasswordView
 
+
 urlpatterns = [
     path('active/<uuid:activation_code>/', ActivateAccount.as_view(), name='activate_account'),
     path("reset/<uidb64>/<token>/", CustomSetPasswordView.as_view(), name='custom_password_reset_confirm'),
