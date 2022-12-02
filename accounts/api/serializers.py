@@ -32,7 +32,7 @@ class UserSerializer(serializers.Serializer):
         user.is_active = False
         code = user.create_activation_code()
 
-        activation_link = f'https://127.0.0.1:8000/' \
+        activation_link = f'https://powerful-island-44462.herokuapp.com/' \
                           f'{user.activation_code}'
         send_mail(subject='Activation',
                   message=activation_link,

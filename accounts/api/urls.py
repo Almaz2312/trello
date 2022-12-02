@@ -10,5 +10,6 @@ urlpatterns = [
     path('restore_password/', views.ResetPasswordAPIView.as_view()),
     path('restore_complete/', views.ResetPasswordCompleteView.as_view()),
     path('logout/', views.LogoutAPIView.as_view(), name='api_logout'),
-    path('google_oauth/', views.GoogleLoginView.as_view())
+    path('google_oauth/', views.GoogleLoginView.as_view()),
+    path('rest_login/', include('rest_framework.urls'))
 ]
