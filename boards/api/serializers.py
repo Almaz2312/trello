@@ -19,7 +19,8 @@ class BoardSerializer(serializers.Serializer):
         extra_kwargs = {'id': {'required': True}}
 
     def create(self, validated_data):
-        return Board(**validated_data).save()
+        Board(**validated_data).save()
+        return Board
 
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title')

@@ -48,9 +48,9 @@ class BoardListAPIView(APIView):
 
     @swagger_auto_schema(request_body=BoardSerializer)
     def post(self, request):
-        serializer = BoardSerializer(owner=request.user, data=request.data)
+        serializer = BoardSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(owner=request.user)
         return Response(status=status.HTTP_201_CREATED)
 
     def save(self):

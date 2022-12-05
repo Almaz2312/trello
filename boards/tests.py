@@ -27,7 +27,6 @@ class BoardListCreateTestView(APITestCase):
         request = self.client.get(board_url)
         self.assertEqual(boards.title, 'UNIT TEST')
         self.assertEqual(request.status_code, status.HTTP_200_OK)
-        # self.assertEqual(request, Board.objects.first)
 
     def test_can_save_a_POST_request(self):
         board_url = reverse_lazy('board_api')
@@ -35,7 +34,10 @@ class BoardListCreateTestView(APITestCase):
         self.client.force_login(self.get_user(1))
         self.client.post(board_url, data=data)
         self.assertEqual(Board.objects.count(), 1)
-        # BoardListAPIView.post(self, request)
         boards = Board.objects.first()
         self.assertEqual(boards.title, 'TEST UNITTEST')
-        # self.assertEqual(boards.owner, self.user1)
+        self.assertEqual(boards.owner, self.user1)
+        self.assertEqual(Board.objects.count(), 1)
+
+    def test_can_save_a_PUT_request(self):
+        board_url = reverse_lazy('board_api')
