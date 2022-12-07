@@ -1,4 +1,3 @@
-from django.http import HttpRequest
 from rest_framework import status
 from rest_framework.reverse import reverse_lazy
 from rest_framework.test import APITestCase
@@ -10,7 +9,7 @@ from boards.models import Board
 User = get_user_model()
 
 
-class BoardListCreateTestView(APITestCase):
+class BoardTestView(APITestCase):
 
     def setUp(self):
         self.user1 = User(email='a@b.com', password='12345678')
@@ -19,8 +18,8 @@ class BoardListCreateTestView(APITestCase):
     def get_user(self, pk):
         return User.objects.get(pk=pk)
 
-    def test_get_object(self):
-        self.client.force_login(self.get_user(1))
+    def test_list_GET_request(self):
+        self.client.force_authenticate(user=self.user1)
         boards = Board(title='UNIT TEST', owner=self.get_user(1))
         boards.save()
         board_url = reverse_lazy('board_api')
@@ -28,16 +27,50 @@ class BoardListCreateTestView(APITestCase):
         self.assertEqual(boards.title, 'UNIT TEST')
         self.assertEqual(request.status_code, status.HTTP_200_OK)
 
-    def test_can_save_a_POST_request(self):
+    def test_POST_request(self):
+        self.client.force_authenticate(user=self.user1)
         board_url = reverse_lazy('board_api')
         data = {'title': "TEST UNITTEST"}
-        self.client.force_login(self.get_user(1))
-        self.client.post(board_url, data=data)
-        self.assertEqual(Board.objects.count(), 1)
+        request = self.client.post(board_url, data=data)
         boards = Board.objects.first()
         self.assertEqual(boards.title, 'TEST UNITTEST')
         self.assertEqual(boards.owner, self.user1)
         self.assertEqual(Board.objects.count(), 1)
+        self.assertEqual(request.status_code, status.HTTP_201_CREATED)
 
-    def test_can_save_a_PUT_request(self):
+    def test_PUT_request(self):
+        self.client.force_authenticate(user=self.user1)
         board_url = reverse_lazy('board_api')
+        self.client.post(board_url, data={'title': 'UnitTest'})
+        board = Board.objects.first()
+        request = self.client.patch(reverse_lazy('board_api_detail', kwargs={'pk': board.pk}),
+                                    data={'title': 'Changed'}, follow=True)
+        changed = Board.objects.first()
+        self.assertEqual(Board.objects.count(), 1)
+        self.assertEqual(changed.title, 'Changed')
+        self.assertEqual(request.status_code, status.HTTP_202_ACCEPTED)
+
+    def test_PATCH_request(self):
+        self.client.force_authenticate(user=self.user1)
+        board_url = reverse_lazy('board_api')
+        self.client.post(board_url, data={'title': 'UnitTest'})
+        board = Board.objects.first()
+        request = self.client.patch(reverse_lazy('board_api_detail', kwargs={'pk': board.pk}), data={'title': 'Changed'}, follow=True)
+        changed = Board.objects.first()
+        self.assertEqual(Board.objects.count(), 1)
+        self.assertEqual(changed.title, 'Changed')
+        self.assertEqual(request.status_code, status.HTTP_202_ACCEPTED)
+
+    def test_DELETE_request(self):
+        self.client.force_authenticate(user=self.user1)
+        board_url = reverse_lazy('board_api')
+        self.client.post(board_url, data={'title': 'UnitTest'})
+        data = {'title': 'Changed Test'}
+        board = Board.objects.first()
+        request = self.client.delete(reverse_lazy('board_api_detail', kwargs={'pk': board.pk}), follow=True)
+        self.assertEqual(Board.objects.count(), 0)
+        self.assertEqual(request.status_code, status.HTTP_204_NO_CONTENT)
+
+
+class MemberTest(APITestCase):
+    def test_list_GET_request(self):

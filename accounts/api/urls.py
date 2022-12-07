@@ -1,7 +1,6 @@
 from django.urls import path, include
 from accounts.api import views
 
-
 urlpatterns = [
 
     path('register/', views.RegisterAPIView.as_view(), name='api_register'),

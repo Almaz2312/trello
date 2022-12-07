@@ -10,7 +10,7 @@ from drf_yasg.utils import swagger_auto_schema
 from accounts.api.serializers import (UserSerializer,
                                       ResetPasswordSerializer,
                                       ResetPasswordCompleteSerializer,
-                                      ChangePasswordSerializer)
+                                      ChangePasswordSerializer, LoginSerializer)
 from main import settings
 
 User = get_user_model()
@@ -38,7 +38,9 @@ class ActivationAPIView(APIView):
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny, ]
+    authentication_classes = []
 
+    @swagger_auto_schema(request_body=LoginSerializer)
     def post(self, request):
         email = request.data['email']
         password = request.data['password']
@@ -46,7 +48,7 @@ class LoginAPIView(APIView):
         if user:
             token, _ = Token.objects.get_or_create(user=user)
             return Response({
-                'token': token.key,
+                'Token': f'Token {token.key}',
             }, status=status.HTTP_200_OK)
 
 
@@ -58,11 +60,15 @@ class LogoutAPIView(APIView):
 
 
 class GoogleLoginView(APIView):
+    permission_classes = [AllowAny, ]
+
     def get(self, request):
         return HttpResponseRedirect(f'{settings.SOCIAL_AUTH_LOGIN_URL}')
 
 
 class ResetPasswordAPIView(APIView):
+    permission_classes = [AllowAny, ]
+
     @swagger_auto_schema(request_body=ResetPasswordSerializer)
     def post(self, request):
         data = request.data
@@ -73,6 +79,8 @@ class ResetPasswordAPIView(APIView):
 
 
 class ResetPasswordCompleteView(APIView):
+    permission_classes = [AllowAny]
+
     @swagger_auto_schema(request_body=ResetPasswordCompleteSerializer)
     def post(self, request):
         data = request.data

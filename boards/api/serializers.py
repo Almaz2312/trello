@@ -20,7 +20,7 @@ class BoardSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         Board(**validated_data).save()
-        return Board
+        return Board(**validated_data)
 
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title')
@@ -39,17 +39,13 @@ class BoardSerializer(serializers.Serializer):
 
 
 class MembersSerializer(serializers.Serializer):
-    member = serializers.StringRelatedField()
-    board = serializers.StringRelatedField()
+    member = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    board = serializers.PrimaryKeyRelatedField(queryset=Board.objects.all())
 
     def create(self, validated_data):
-        obj = Board.objects.get(id=validated_data['board'])
-        member = Members(
-            member=validated_data['member'],
-            board=obj
-        )
-
-        return member.save()
+        member = Members(**validated_data)
+        member.save()
+        return member
 
     def update(self, instance, validated_data):
         instance.member = validated_data.get('member', instance.member)
@@ -60,10 +56,11 @@ class MembersSerializer(serializers.Serializer):
 
 class ColumnSerializer(serializers.Serializer):
     name = serializers.CharField()
-    board = serializers.StringRelatedField()
+    board = serializers.PrimaryKeyRelatedField(queryset=Board.objects.all())
 
     def create(self, validated_data):
-        return Column(**validated_data).save()
+        Column(**validated_data).save()
+        return Column(**validated_data)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
@@ -73,6 +70,9 @@ class ColumnSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         representation = super(ColumnSerializer, self).to_representation(instance)
+        if not representation.get('pk'):
+            return representation
+
         if instance.card_column.exists():
             representation['cards'] = CardColumnSerializer(instance.card_column.all(), many=True).data
         return representation
@@ -84,7 +84,8 @@ class MarksSerializer(serializers.Serializer):
     color = serializers.CharField()
 
     def create(self, validated_data):
-        return Mark(**validated_data).save(())
+        Mark(**validated_data).save(())
+        return Mark(**validated_data)
 
     def update(self, instance, validated_data):
         instance.board = validated_data.get('board', instance.board)
@@ -99,7 +100,8 @@ class MarkCardSerializer(serializers.Serializer):
     card = serializers.StringRelatedField()
 
     def create(self, validated_data):
-        return MarkCard(**validated_data).save()
+        MarkCard(**validated_data).save()
+        return MarkCard(**validated_data)
 
 
 class ChecklistSerializer(serializers.Serializer):
@@ -108,7 +110,8 @@ class ChecklistSerializer(serializers.Serializer):
     card = serializers.StringRelatedField()
 
     def create(self, validated_data):
-        return CheckList(**validated_data).save()
+        CheckList(**validated_data).save()
+        return CheckList(**validated_data)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
@@ -123,7 +126,8 @@ class LastSeenSerializer(serializers.Serializer):
     seen = serializers.DateTimeField()
 
     def create(self, validated_data):
-        return LastSeen(**validated_data).save()
+        LastSeen(**validated_data).save()
+        return LastSeen(**validated_data)
 
 
 class CardColumnSerializer(serializers.Serializer):
@@ -138,11 +142,25 @@ class CardSerializer(serializers.Serializer):
     name = serializers.CharField()
     description = serializers.CharField()
     due_date = serializers.DateField()
-    mark = serializers.StringRelatedField()
-    column = serializers.CharField()
+    column = serializers.PrimaryKeyRelatedField(queryset=Column.objects.all())
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        if not representation.get('pk'):
+            return representation
+
+        if instance.comment.exists():
+            representation['comments'] = CommentSerializer(instance.comment.all(), many=True).data
+        if instance.attached_to_card.exists():
+            representation['marks'] = MarkCardSerializer(instance.attached_to_card.all(), many=True).data
+        if instance.file.exists():
+            representation['files'] = FileSerializer(instance.file.all(), many=True).data
+        return representation
 
     def create(self, validated_data):
-        return Card(**validated_data).save()
+        Card(**validated_data).save()
+        return Card(**validated_data)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
@@ -153,16 +171,6 @@ class CardSerializer(serializers.Serializer):
         instance.save()
         return instance
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        if instance.comment.exists():
-            representation['comments'] = CommentSerializer(instance.comment.all(), many=True).data
-        if instance.attached_to_card.exists():
-            representation['marks'] = MarkCardSerializer(instance.attached_to_card.all(), many=True).data
-        if instance.file.exists():
-            representation['files'] = FileSerializer(instance.file.all(), many=True).data
-        return representation
-
 
 class CommentSerializer(serializers.Serializer):
     text = serializers.CharField()
@@ -171,7 +179,8 @@ class CommentSerializer(serializers.Serializer):
     created_on = serializers.DateTimeField()
 
     def create(self, validated_data):
-        return Comment(**validated_data).save()
+        Comment(**validated_data).save()
+        return Comment(**validated_data)
 
 
 class FavouriteSerializer(serializers.Serializer):
@@ -179,7 +188,8 @@ class FavouriteSerializer(serializers.Serializer):
     author = serializers.StringRelatedField()
 
     def create(self, validated_data):
-        return Favourite(**validated_data).save()
+        Favourite(**validated_data).save()
+        return Favourite(**validated_data)
 
 
 class ArchiveSerializer(serializers.Serializer):
@@ -187,12 +197,14 @@ class ArchiveSerializer(serializers.Serializer):
     author = serializers.StringRelatedField()
 
     def create(self, validated_data):
-        return Archive(**validated_data).save()
+        Archive(**validated_data).save()
+        return Archive(**validated_data)
 
 
 class FileSerializer(serializers.Serializer):
     file = serializers.FileField()
-    card = serializers.StringRelatedField()
+    card = serializers.PrimaryKeyRelatedField(queryset=Card.objects.all())
 
     def create(self, validated_data):
-        return File(**validated_data).save()
+        File(**validated_data).save()
+        return File(**validated_data)

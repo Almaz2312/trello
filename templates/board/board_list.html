@@ -10,7 +10,11 @@
 {% for board in boards %}
     <div class="col-md-4" style="">
         <div class="card mb-2">
+            {% if board.background %}
             <img class="card-img-top" src="{{board.background.url}}">
+            {% else %}
+            <img class="card-img-top" src="">
+            {% endif %}
             <div class="card-body">
                 <h5 class="card-title">{{ board.title }}</h5>
                 <p class="card-text">{{ board.owner }}</p>
