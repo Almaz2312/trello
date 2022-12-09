@@ -42,8 +42,6 @@ class BoardListAPIView(APIView):
     @swagger_auto_schema(responses={200: BoardSerializer(many=True)})
     def get(self, request):
         boards = Board.objects.filter(Q(members__member=request.user) | Q(owner=request.user))
-        # for board in boards:
-        #     self.check_object_permissions(request, board)
         search = self.request.query_params.get('search')
         if search:
             boards = boards.filter(title__icontains=search)
@@ -144,8 +142,8 @@ class MembersDetailUpdateDeleteAPIView(APIView):
 
     @swagger_auto_schema(request_body=MembersSerializer)
     def put(self, request, pk):
-        board = Board.objects.get(pk=request.data['board'])
-        self.check_object_permissions(request, request.data['board'])
+        board = Members.objects.get(pk=pk).board
+        self.check_object_permissions(request, board)
         serializer = MembersSerializer(Members.objects.get(pk=pk), data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -163,7 +161,7 @@ class MembersDetailUpdateDeleteAPIView(APIView):
     def delete(self, request, pk):
         member = Members.objects.get(pk=pk)
         if member:
-            self.check_object_permissions(request, member.board.pk)
+            self.check_object_permissions(request, member.board)
             member.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status.HTTP_404_NOT_FOUND)
@@ -204,7 +202,7 @@ class ColumnDetailUpdateDeleteAPIView(APIView):
         column = Column.objects.get(pk=pk)
         self.check_object_permissions(request, column.board)
         column.delete()
-        return Response(status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @swagger_auto_schema(request_body=ColumnSerializer)
     def put(self, request, pk):
@@ -266,7 +264,7 @@ class CardDetailDeleteUpdate(APIView):
         card = Card.objects.get(pk=pk)
         self.check_object_permissions(request, card.column.board)
         card.delete()
-        return Response(status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @swagger_auto_schema(request_body=CardSerializer)
     def put(self, request, pk):
@@ -280,26 +278,29 @@ class CardDetailDeleteUpdate(APIView):
     @swagger_auto_schema(request_body=CardSerializer)
     def patch(self, request, pk):
         self.check_object_permissions(request, Card.objects.get(pk=pk).column.board)
-        serializer = CardSerializer(Card.objects.get(pk=pk), data=request.data, many=True)
+        serializer = CardSerializer(Card.objects.get(pk=pk), data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
 
 class FileListCreateAPIView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsBoardOwnerOrMember]
 
     def get(self, request):
-        files = File.objects.filter(Q(board__owner=request.user) | Q(board__members__member=request.user))
-        for file in files:
-            self.check_object_permissions(request, file.card.column.board)
-        serializer = FileSerializer(File.objects.filter(Q(board__owner=request.user) | Q(board__members__member=request.user)), many=True)
+        obj = File.objects.filter(Q(card__column__board__owner=request.user) | Q(card__column__board__members__member=request.user))
+        for fi in obj:
+            self.check_object_permissions(request, fi.card.column.board)
+        serializer = FileSerializer(obj, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(request_body=FileSerializer)
     def post(self, request):
         board = Card.objects.get(pk=request.data['card']).column.board
         self.check_object_permissions(request, board)
         serializer = FileSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -310,13 +311,14 @@ class FileDetailDeleteAPIView(APIView):
     def get(self, request, pk):
         board = File.objects.get(pk=pk).card.column.board
         self.check_object_permissions(request, board)
-        serializer = File.objects.get(pk=pk)
+        file = File.objects.get(pk=pk)
+        serializer = FileSerializer(data=file)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, pk):
         self.check_object_permissions(request, File.objects.get(pk=pk).card.column.board)
         File.objects.get(pk=pk).delete()
-        return Response(status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CheckListCreateAPIView(APIView):
@@ -356,7 +358,7 @@ class CheckDetailUpdateDeleteAPIView(APIView):
         checklist = CheckList.objects.get(pk=pk)
         self.check_object_permissions(request, checklist.card.column.board)
         checklist.delete()
-        return Response(status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @swagger_auto_schema(request_body=ChecklistSerializer)
     def put(self, request, pk):
@@ -415,16 +417,20 @@ class FavouriteDetailDeleteView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, pk):
-        self.check_object_permissions()
-        Favourite.objects.get(pk=pk).delete()
-        return Response(status.HTTP_204_NO_CONTENT)
+        favourite = Favourite.objects.get(pk=pk)
+        self.check_object_permissions(request, favourite.board)
+        favourite.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class MarkListAPIView(APIView):
     permission_classes = [IsBoardOwnerOrMember]
 
+# ValueError: Cannot query "a@b.com": Must be "Board" instance. On Get test
+    @swagger_auto_schema(responses={200: MarksSerializer(many=True)})
     def get(self, request):
-        marks = Mark.objects.filter(Q(board__onwer=request.user) | Q(board__members_member=request.user))
+
+        marks = Mark.objects.filter(board__owner=request.user)
         serializer = MarksSerializer(marks, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
 
@@ -457,8 +463,9 @@ class MarkDetailUpdateDeleteAPIView(APIView):
 
     @swagger_auto_schema(request_body=MarksSerializer)
     def patch(self, request, pk):
+        mark = Mark.objects.get(pk=pk)
         self.check_object_permissions(request, Mark.objects.get(pk=pk).board)
-        serializer = MembersSerializer(Mark.objects.get(pk=pk), request.data)
+        serializer = MarksSerializer(mark, request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
@@ -473,12 +480,12 @@ class CommentCreateAPIView(APIView):
     permission_classes = [IsBoardOwnerOrMember]
 
     @swagger_auto_schema(request_body=CommentSerializer)
-    def post(self, request, card_id):
-        card = Card.objects.get(pk=card_id)
+    def post(self, request, pk):
+        card = Card.objects.get(pk=pk)
         self.check_object_permissions(request, card.column.board)
-        serializer = CommentSerializer(card=card, data=request.data)
+        serializer = CommentSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(card=card, author=request.user)
         return Response(serializer.data, status.HTTP_201_CREATED)
 
 
@@ -496,7 +503,7 @@ class ArchiveListCreateAPIView(APIView):
     def post(self, request):
         board = Board.objects.get(pk=request.data['board'])
         self.check_object_permissions(request, board)
-        serializer = ArchiveSerializer(author=request.user, board=board)
+        serializer = ArchiveSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
@@ -512,7 +519,7 @@ class ArchiveDetailUpdateDeleteView(APIView):
 
     def delete(self, request, pk):
         Archive.objects.get(pk=pk).delete()
-        return Response(status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class MarkCardCreateView(APIView):
@@ -537,6 +544,6 @@ class MarkCardDetailDeleteView(APIView):
     def delete(self, request, pk):
         self.check_object_permissions(request, MarkCard.objects.get(pk=pk).card.column.board)
         MarkCard.objects.get(pk=pk).delete()
-        return Response(status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 

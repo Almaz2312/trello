@@ -45,7 +45,7 @@ class Column(models.Model):
 
 
 class Mark(models.Model):
-    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='mark')
     name = models.CharField(max_length=30)
     color = models.CharField(max_length=30)
 

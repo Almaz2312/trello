@@ -79,7 +79,7 @@ class ColumnSerializer(serializers.Serializer):
 
 
 class MarksSerializer(serializers.Serializer):
-    board = serializers.StringRelatedField()
+    board = serializers.PrimaryKeyRelatedField(queryset=Board.objects.all())
     name = serializers.CharField()
     color = serializers.CharField()
 
@@ -107,7 +107,7 @@ class MarkCardSerializer(serializers.Serializer):
 class ChecklistSerializer(serializers.Serializer):
     name = serializers.CharField()
     done = serializers.BooleanField(default=False)
-    card = serializers.StringRelatedField()
+    card = serializers.PrimaryKeyRelatedField(queryset=Card.objects.all())
 
     def create(self, validated_data):
         CheckList(**validated_data).save()
@@ -166,7 +166,6 @@ class CardSerializer(serializers.Serializer):
         instance.name = validated_data.get('name', instance.name)
         instance.description = validated_data.get('description', instance.description)
         instance.due_date = validated_data.get('due_date', instance.due_date)
-        instance.mark = validated_data.get('mark', instance.mark)
         instance.column = validated_data.get('column', instance.column)
         instance.save()
         return instance
@@ -184,8 +183,8 @@ class CommentSerializer(serializers.Serializer):
 
 
 class FavouriteSerializer(serializers.Serializer):
-    board = serializers.StringRelatedField()
-    author = serializers.StringRelatedField()
+    board = serializers.PrimaryKeyRelatedField(queryset=Board.objects.all())
+    author = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     def create(self, validated_data):
         Favourite(**validated_data).save()
@@ -193,8 +192,8 @@ class FavouriteSerializer(serializers.Serializer):
 
 
 class ArchiveSerializer(serializers.Serializer):
-    board = serializers.StringRelatedField()
-    author = serializers.StringRelatedField()
+    board = serializers.PrimaryKeyRelatedField(queryset=Board.objects.all())
+    author = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     def create(self, validated_data):
         Archive(**validated_data).save()
@@ -202,7 +201,7 @@ class ArchiveSerializer(serializers.Serializer):
 
 
 class FileSerializer(serializers.Serializer):
-    file = serializers.FileField()
+    name = serializers.FileField()
     card = serializers.PrimaryKeyRelatedField(queryset=Card.objects.all())
 
     def create(self, validated_data):
