@@ -66,7 +66,7 @@ class GoogleLoginView(APIView):
 
     def get(self, request):
         # return HttpResponseRedirect(f'{settings.SOCIAL_AUTH_LOGIN_URL}')
-        return reverse_lazy('social:begin', 'google-oauth2')
+        return HttpResponseRedirect(f'{settings.SOCIAL_AUTH_LOGIN_URL}')
 
 class ResetPasswordAPIView(APIView):
     permission_classes = [AllowAny, ]

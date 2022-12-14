@@ -1,5 +1,4 @@
 from django.urls import path, include
-from django.contrib.auth import urls
 from accounts.views import ActivateAccount, Dashboard, Register, CustomSetPasswordView
 
 
