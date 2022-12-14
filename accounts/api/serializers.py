@@ -9,17 +9,19 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
     username = serializers.CharField(label='username', max_length=26)
     email = serializers.EmailField(label='email')
     password = serializers.CharField(label='password', min_length=8, write_only=True)
     password2 = serializers.CharField(label='confirm password', min_length=8, write_only=True)
 
-    def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
+    def validate_email(self, email):
+        if User.objects.filter(email=email).exists():
             raise ValidationError('This email already exists!!!')
-        return value
+        return email
 
     def validate(self, attrs):
+        attrs._mutable = True
         password = attrs.get('password')
         password2 = attrs.pop('password2')
         if password2 != password:
@@ -27,37 +29,35 @@ class UserSerializer(serializers.Serializer):
         return super().validate(attrs)
 
     def create(self, validated_data):
-        validated_data.pop('password2')
-        user = User.objects.create_user(**validated_data)
+        user = User.objects.create_user(**self.validated_data)
         user.is_active = False
         code = user.create_activation_code()
 
-        activation_link = f'https://powerful-island-44462.herokuapp.com/' \
-                          f'{user.activation_code}'
-        send_mail(subject='Activation',
-                  message=activation_link,
-                  from_email=settings.EMAIL_HOST_USER,
-                  recipient_list=[user.email],
-                  fail_silently=False)
+        # activation_link = f'{user.activation_code}'
+        # send_mail(subject='Activation',
+        #           message=activation_link,
+        #           from_email=settings.EMAIL_HOST_USER,
+        #           recipient_list=[user.email],
+        #           fail_silently=False)
         user.save()
+        return user
+
+
+class AccountActivationSerializer(serializers.Serializer):
+    activation_code = serializers.CharField()
+
+    def validate(self, attrs):
+        activation_code = attrs.get('activation_code')
+        user = User.objects.get(activation_code=activation_code)
+        user.is_active = True
+        user.activation_code = ''
+        user.save()
+        return super().validate(attrs)
 
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(label='email')
     password = serializers.CharField(min_length=8, write_only=True, label='Password')
-
-    def validate_login(self, email):
-        if not User.objects.filter(email=email).exists():
-            raise ValidationError('Email does not exists!!!')
-        return email
-
-    def validate(self, attrs):
-        email = attrs.get('email')
-        password = attrs.get('password')
-        user = User.objects.get(email=email)
-        if not user.check_password(password):
-            raise ValidationError('Password is not valid')
-        return super().validate(attrs)
 
 
 class ResetPasswordSerializer(serializers.Serializer):

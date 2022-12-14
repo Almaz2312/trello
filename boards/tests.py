@@ -32,7 +32,7 @@ class BoardTestView(APITestCase):
 
     def test_list_GET_request(self):
         self.client.force_authenticate(user=self.user1)
-        boards = Board(title='UNIT TEST', owner=self.get_user(1))
+        boards = Board(title='UNIT TEST', owner=self.user1)
         boards.save()
         request = self.client.get(self.board_url)
         self.assertEqual(boards.title, 'UNIT TEST')
@@ -113,7 +113,7 @@ class MemberTest(APITestCase):
         member = create_member_instance(self, board=board)
         request = self.client.patch(
             reverse_lazy('member_api_detail', kwargs={'pk': member.pk}),
-            {'board': 2})
+            {'board': second.pk})
         self.assertEqual(request.status_code, status.HTTP_202_ACCEPTED)
 
     def test_PUT_request(self):
@@ -124,7 +124,7 @@ class MemberTest(APITestCase):
         member = create_member_instance(self, board=board)
         request = self.client.put(
             reverse_lazy('member_api_detail', kwargs={'pk': member.pk}),
-            {'board': 2, 'member': 1})
+            {'board': second.pk, 'member': self.user1.pk})
         self.assertEqual(request.status_code, status.HTTP_202_ACCEPTED)
 
     def test_DELETE_request(self):
@@ -184,7 +184,7 @@ class ColumnTest(APITestCase):
         second.save()
         column = create_column_instance(self, board)
         request = self.client.put(reverse_lazy('column_api_detail', kwargs={'pk': column.pk}),
-                                    data={'name': 'PUT NAME', 'board': 2})
+                                    data={'name': 'PUT NAME', 'board': board.pk})
         self.assertEqual(request.status_code, status.HTTP_202_ACCEPTED)
 
     def test_DELETE_request(self):
@@ -437,7 +437,7 @@ class CommentTest(APITestCase):
             board = create_board_instance(self)
             column = create_column_instance(self, board)
             card = create_card_instance(self, column)
-            request = self.client.post(reverse_lazy('comment_api', kwargs={'pk': card.pk}),
+            request = self.client.post(reverse_lazy('comment_api', kwargs={'card_id': card.pk}),
                                        data={'text': 'Some Text',
                                              'created_on': '2022-12-09T00:45:05.845Z'})
             self.assertEqual(request.status_code, status.HTTP_201_CREATED)
@@ -543,5 +543,4 @@ class FavouriteTest(APITestCase):
             board = create_board_instance(self)
             favourite = create_favourite_instance(self, board, user=self.user1)
             request = self.client.delete(reverse_lazy('favourite_api_detail', kwargs={'pk': favourite.pk}))
-            print(Favourite.objects.all())
             self.assertEqual(request.status_code, status.HTTP_204_NO_CONTENT)

@@ -1,10 +1,11 @@
-FROM python:3.10.6
+FROM python:3.10-slim-bullseye
 ENV PYTHONBUFFERED=1
 
 WORKDIR /trello
 
+RUN pip install --upgrade pip
 COPY ./requirements.txt ./requirements.txt
-RUN pip3 install -r requirements.txt
+RUN pip install -r requirements.txt
 
 
 COPY . .

@@ -1,28 +1,27 @@
-volumes:
-  trello: {}
-  trello_data_backups: {}
+version: '3.9'
 
 services:
-    trello:
-        build:
-            context: .
+  web:
+    build: .
+    command: python ./manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/trello
     ports:
-        - "8000:8000"
-    volumes:
-        - .trello:.
-    command: >
-        sh -c "python3 manage.py runserver 0.0.0.0:8000"
-    depends_on:
-        -postgres
-
-
-  postgres:
-    build:
-      context: .
-    image: trello_postgres
-    container_name: trello_postgres
-    volumes:
-      - trello_postgres_data:/var/lib/postgresql/data:Z
-      - trello_postgres_data_backups:/backups:z
+      - 8000:8000
     env_file:
-      - .env
+      - .envs/.env
+    depends_on:
+      - trello_db
+
+
+  trello_db:
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=trello_admin
+      - POSTGRES_PASSWORD=qwerty12345
+      - POSTGRES_DB=trello_db
+
+volumes:
+  postgres_data:
