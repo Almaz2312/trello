@@ -1,5 +1,4 @@
 from django.urls import path
-from rest_framework.reverse import reverse_lazy
 
 from accounts.api import views
 
@@ -13,5 +12,4 @@ urlpatterns = [
     path('reset_complete/', views.ResetPasswordCompleteView.as_view(), name='api_reset_password_complete'),
     path('logout/', views.LogoutAPIView.as_view(), name='api_logout'),
     path('google_oauth/', views.GoogleLoginView.as_view(), name='api_google_auth'),
-    # path('google_oauth/', reverse_lazy(''))
 ]

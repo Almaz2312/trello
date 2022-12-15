@@ -2,8 +2,7 @@ from django.contrib.auth import get_user_model, authenticate
 from django.http.response import HttpResponseRedirect
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.reverse import reverse_lazy
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema

@@ -585,5 +585,3 @@ class MarkCardDetailDeleteView(APIView):
         self.check_object_permissions(request, self.get_object(pk).card.column.board)
         self.get_object(pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
