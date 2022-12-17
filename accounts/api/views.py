@@ -49,9 +49,10 @@ class LoginAPIView(APIView):
         user = authenticate(email=email, password=password)
         if user:
             token, _ = Token.objects.get_or_create(user=user)
-            return Response({
+            return Response(data={
                 'Token': f'Token {token.key}',
             }, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class LogoutAPIView(APIView):
@@ -62,9 +63,9 @@ class LogoutAPIView(APIView):
 
 
 class GoogleLoginView(APIView):
+    permission_classes = [AllowAny, ]
 
     def get(self, request):
-        # return HttpResponseRedirect(f'{settings.SOCIAL_AUTH_LOGIN_URL}')
         return HttpResponseRedirect(f'{settings.SOCIAL_AUTH_LOGIN_URL}')
 
 class ResetPasswordAPIView(APIView):
