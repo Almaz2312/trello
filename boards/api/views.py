@@ -43,7 +43,7 @@ class BoardListAPIView(APIView):
         search = self.request.query_params.get('search')
         if search:
             boards = boards.filter(title__icontains=search)
-        serializer = BoardSerializer(boards, many=True)
+        serializer = BoardSerializer(boards, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(request_body=BoardSerializer)

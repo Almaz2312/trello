@@ -1,3 +1,5 @@
+import django.contrib.auth.urls
+import rest_framework.authentication
 from django.urls import path, include
 from accounts.views import ActivateAccount, Dashboard, Register, CustomSetPasswordView
 
@@ -11,3 +13,4 @@ urlpatterns = [
     path('oauth/', include('social_django.urls'), name='social'),
 
 ]
+rest_framework.authentication.BaseAuthentication
